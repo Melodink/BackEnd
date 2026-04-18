@@ -30,44 +30,44 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
-    private final RefreshTokenService refreshTokenService;
-    private final CustomOAuth2UserService customOAuth2UserService;
+//    private final JwtUtil jwtUtil;
+//    private final RefreshTokenService refreshTokenService;
+//    private final CustomOAuth2UserService customOAuth2UserService;
 //    private final OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
-    private final UserStatusPostChecker userStatusPostChecker;
+//    private final UserRepository userRepository;
+//    private final PasswordEncoder passwordEncoder;
+//    private final UserDetailsService userDetailsService;
+//    private final UserStatusPostChecker userStatusPostChecker;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-
-        // 계정수집 방지: 비번 검증 "전" 상태 체크는 끈다(또는 no-op로 대체)
-        provider.setPreAuthenticationChecks(user -> {});
-
-        // 비번 검증 "후" 상태로 분기
-        provider.setPostAuthenticationChecks(userStatusPostChecker);
-
-        return new ProviderManager(provider);
-    }
+//    @Bean
+//    public AuthenticationManager authenticationManager() throws Exception {
+//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//        provider.setUserDetailsService(userDetailsService);
+//        provider.setPasswordEncoder(passwordEncoder);
+//
+//        // 계정수집 방지: 비번 검증 "전" 상태 체크는 끈다(또는 no-op로 대체)
+//        provider.setPreAuthenticationChecks(user -> {});
+//
+//        // 비번 검증 "후" 상태로 분기
+//        provider.setPostAuthenticationChecks(userStatusPostChecker);
+//
+//        return new ProviderManager(provider);
+//    }
 
     /** 커스텀 로그인 필터 (ID/PW → JWT 발급) */
-    @Bean
-    public LoginFilter loginFilter(AuthenticationManager authenticationManager) throws Exception {
-        LoginFilter loginFilter = new LoginFilter(
-                authenticationManager,
-                jwtUtil,
-                refreshTokenService
-        );
-        loginFilter.setFilterProcessesUrl("/api/auth/login"); // 로그인 엔드포인트
-        return loginFilter;
-    }
+//    @Bean
+//    public LoginFilter loginFilter(AuthenticationManager authenticationManager) throws Exception {
+//        LoginFilter loginFilter = new LoginFilter(
+//                authenticationManager,
+//                jwtUtil,
+//                refreshTokenService
+//        );
+//        loginFilter.setFilterProcessesUrl("/api/auth/login"); // 로그인 엔드포인트
+//        return loginFilter;
+//    }
 
     // 추후 Nginx에서 X-Forwarded-Proto 제대로 넘기는지 확인
     @Bean
@@ -162,11 +162,11 @@ public class SecurityConfig {
 
                 // 필터 체인 (순서 중요)
                 // 1) JWT 인증 필터: 모든 요청 전에 토큰 해석/인증
-                .addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class)
                 // 2) 커스텀 로그인 필터: /auth/login 처리하여 JWT 발급
-                .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
+//                .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
                 // 3) 커스텀 로그아웃 필터: 로그아웃/리프레시토큰 제거 등
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService), LogoutFilter.class)
+//                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService), LogoutFilter.class)
 
 
                 //세션 설정
