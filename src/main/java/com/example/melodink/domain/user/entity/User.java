@@ -1,6 +1,6 @@
 package com.example.melodink.domain.user.entity;
 
-import com.example.melodink.global.BaseEntiry;
+import com.example.melodink.global.common.BaseEntiry;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,14 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
+@Table(name = "users")
 public class User extends BaseEntiry {
 
     @Id
@@ -63,6 +62,7 @@ public class User extends BaseEntiry {
     private LocalDateTime retentionUntil;  // 보관 만료 시각
 
     @Column(nullable = false)
+    @Builder.Default
     private long tokenVersion = 0L;        // 토큰 버전(즉시 무효화용)
 
     @Column(unique = true)
