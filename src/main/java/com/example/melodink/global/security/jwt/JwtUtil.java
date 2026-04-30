@@ -17,18 +17,12 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey secretKey;
-    private final long accessTokenExpiresMs;
-    private final long refreshTokenExpiresMs;
 
-    public JwtUtil(@Value("${jwt.secret") String secret,
-                   @Value("${jwt.access-token-expire-ms:900000") long accessTokenExpiresMs,
-                   @Value("${jwt.refresh-token-expire-ms:604800000") long refreshTokenExpiresMs) {
+
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
 
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
                 Jwts.SIG.HS512.key().build().getAlgorithm());
-        this.accessTokenExpiresMs = accessTokenExpiresMs;
-        this.refreshTokenExpiresMs = refreshTokenExpiresMs;
-
     }
 
     private Claims parseClaims(String token) {

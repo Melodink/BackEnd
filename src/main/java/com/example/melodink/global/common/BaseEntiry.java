@@ -1,4 +1,4 @@
-package com.example.melodink.global;
+package com.example.melodink.global.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
