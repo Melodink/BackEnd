@@ -1,4 +1,6 @@
 spring:
+    profiles:
+        active: local
     datasource:
         url: ${DB_URL}
         username: ${DB_USERNAME}
@@ -6,7 +8,7 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: create
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -23,3 +25,8 @@ jwt:
 app:
     front-redirect-base: ${FRONTEND_URL}
     frontend-url: ${FRONTEND_URL}
+
+cloud:
+    aws:
+        s3:
+            enabled: false   # 로컬에서는 S3 Mock 사용 → AWS 자격증명 불필요
