@@ -26,7 +26,7 @@ public record ShowInfoResponse (
                 user.getPictureUrl(),
                 user.getRole(),
                 user.getProvider(),
-                user.getCreateAt()
+                user.getCreatedAt()
         );
     }
 }

@@ -41,3 +41,6 @@ src/main/resources/application-dev.yml
 
 ### ENV file ###
 .env
+
+# QueryDSL generated
+build/generated/querydsl

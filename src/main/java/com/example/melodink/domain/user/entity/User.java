@@ -1,25 +1,34 @@
 package com.example.melodink.domain.user.entity;
 
-import com.example.melodink.global.common.BaseEntiry;
+import com.example.melodink.domain.artist.entity.ArtistProfile;
+import com.example.melodink.domain.community.entity.Post;
+import com.example.melodink.domain.job.entity.JobApplication;
+import com.example.melodink.domain.job.entity.JobPosting;
+import com.example.melodink.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
-@Table(name = "users")
-public class User extends BaseEntiry {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter
+@Setter
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "nickname"),
+                @UniqueConstraint(columnNames = "public_id")
+        },
+        indexes = {
+                @Index(name = "idx_users_email", columnList = "email"),
+                @Index(name = "idx_users_public_id", columnList = "public_id")
+        })
+public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(
@@ -29,7 +38,6 @@ public class User extends BaseEntiry {
     @Builder.Default
     private ProviderType provider = ProviderType.LOCAL;
 
-    @PrePersist
     void ensureProvider() {
         if (provider == null) provider = ProviderType.LOCAL;
     }
@@ -70,10 +78,16 @@ public class User extends BaseEntiry {
 
     private LocalDateTime emailVerifiedAt; // 이메일 검증 시각
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private ArtistProfile artistProfile;
 
-//    @Builder.Default        // NPE 방지를 위해 적용
-//    @OneToMany(mappedBy = "author")               // fetch = LAZY (기본)
-//    private List<Post> posts = new ArrayList<>();
+
+    @Builder.Default        // NPE 방지를 위해 적용
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "director")
+    private List<JobPosting> jobPostings = new ArrayList<>();
 //
 //    @Builder.Default
 //    @OneToMany(mappedBy = "member")
@@ -133,5 +147,7 @@ public class User extends BaseEntiry {
         this.setProviderId(providerId);
     }
 
-
+    public void changeRole(Role role) {
+        this.role = role;
+    }
 }

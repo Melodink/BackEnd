@@ -127,11 +127,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return user.getEmail();
     }
 
-    // Member ID를 반환하는 메서드 추가
-    public Long getMemberId() {
-        return user.getId();
-    }
-
+    // user ID를 반환하는 메서드 추가
     public Long getId() {
         return user.getId();
     }
