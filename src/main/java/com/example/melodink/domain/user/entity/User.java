@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-@Table(name = "users",
+@Table(name = "app_users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "email"),
                 @UniqueConstraint(columnNames = "nickname"),
@@ -31,10 +31,7 @@ import java.util.List;
 public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(
-            nullable = false,
-            columnDefinition = "varchar(255) default 'LOCAL' check (provider in ('LOCAL','GOOGLE','KAKAO','NAVER'))"
-    )
+    @Column(nullable = false)
     @Builder.Default
     private ProviderType provider = ProviderType.LOCAL;
 
@@ -47,6 +44,7 @@ public class User extends BaseEntity {
 
     private String name;
 
+    @Column(unique = true)
     private String nickname;
 
     @Column(nullable = false, unique = true)

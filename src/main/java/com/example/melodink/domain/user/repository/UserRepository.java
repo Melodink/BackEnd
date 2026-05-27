@@ -20,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByVerifiedEmailIgnoreCase(String verify);
 
     Optional<User> findByEmailOrVerifiedEmail(String any, String any1);
+
+   Optional<User> findByEmailAndProvider(String email, ProviderType provider);
+
+    boolean existsByNicknameIgnoreCase(String nick);
 }
