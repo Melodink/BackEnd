@@ -25,8 +25,7 @@ public class BaseEntity {
      * - DB 레벨 default: gen_uuid_v7() (PostgreSQL 17+)
      * - 애플리케이션 레벨 fallback: @PrePersist에서 생성
      */
-    @Column(name = "public_id", nullable = false, updatable = false, unique = true,
-            columnDefinition = "uuid DEFAULT gen_uuid_v7()")
+    @Column(name = "public_id", nullable = false, updatable = false, unique = true)
     private UUID publicId;
 
     @PrePersist
