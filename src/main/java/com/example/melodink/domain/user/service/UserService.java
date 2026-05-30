@@ -7,12 +7,15 @@ import com.example.melodink.domain.user.dto.response.ShowInfoResponse;
 import com.example.melodink.domain.user.entity.AccountStatus;
 import com.example.melodink.domain.user.entity.ProviderType;
 import com.example.melodink.domain.user.entity.User;
+import com.example.melodink.domain.user.repository.UserEmailProjection;
 import com.example.melodink.domain.user.repository.UserRepository;
 import com.example.melodink.global.s3.S3FileType;
 import com.example.melodink.global.s3.S3Service;
 import com.example.melodink.global.security.auth.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -198,4 +202,39 @@ public class UserService {
         boolean exists = userRepository.existsByNicknameIgnoreCase(nick);
         return exists ? DupCheckResponse.dup("nickname") : DupCheckResponse.ok();
     }
+
+    // 스케쥴러를 통해 작동되는 메서드. 소프트 삭제 상태이고 보관 만료된 계정들 삭제
+    public int hardDeleteExpiredUsersChunk(int chunkSize) {
+        List<Long> ids = userRepository.findIdsToHardDelete(LocalDateTime.now(),
+                (Pageable) PageRequest.of(0, chunkSize));
+        if (ids.isEmpty()) return 0;
+
+        // 0) 대체 사용자(탈퇴 사용자) 참조
+        final Long DELETED_USER_ID = 1L; // 운영에서 실제 ID로 설정
+        User deletedUser = userRepository.getReferenceById(DELETED_USER_ID);
+
+        // 1) 행위 엔티티 정리(예: 좋아요/신고) — 벌크 삭제 메서드 필요
+//        commentLikeRepository.deleteByMemberIdIn(ids);
+//        commentReportRepository.deleteByMemberIdIn(ids);
+//
+//        // 2) 글/댓글은 익명화(권장) 또는 삭제 중 정책 선택
+//        postRepository.anonymizeAuthorByMemberIds(ids, deletedUser);
+//        commentRepository.anonymizeAuthorByMemberIds(ids, deletedUser);
+//
+//        // 2-1) 결제 주문도 FK 치환
+//        paymentOrderRepository.reassignMemberToDeleted(ids, deletedUser);
+
+        // 3) refresh 전부 제거
+        List<UserEmailProjection> emails = userRepository.findEmailsByIdIn(ids);
+        for (UserEmailProjection u : emails) {
+            // (a) 기존 DB/외부 저장소에 있는 refresh 토큰 정리
+            refreshTokenStore.revokeAllByUser(u.getEmail());
+        }
+
+        // 4) 마지막으로 회원 삭제
+        userRepository.deleteByIdIn(ids);
+        return ids.size();
+    }
+
+
 }

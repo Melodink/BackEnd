@@ -6,6 +6,7 @@ import com.example.melodink.domain.user.dto.response.ShowInfoResponse;
 import com.example.melodink.domain.user.entity.User;
 import com.example.melodink.domain.user.service.UserService;
 import com.example.melodink.global.security.auth.CustomUserDetails;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Tag(name = "유저 관련")
 public class UserController {
 
     private final UserService userService;
