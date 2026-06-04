@@ -14,9 +14,10 @@
 
 ### Branch Naming Convention
 
-- feature/login
-- feature/member
-- feature/donation
+- feature/user
+- feature/artist
+- feature/community
+- feature/notification
 - fix/bug-name
 - refactor/code-improve
 
