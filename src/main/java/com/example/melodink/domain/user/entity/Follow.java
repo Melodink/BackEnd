@@ -1,5 +1,6 @@
 package com.example.melodink.domain.user.entity;
 
+import com.example.melodink.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Follow {
+public class Follow extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,10 +40,6 @@ public class Follow {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id", nullable = false)
     private User following;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
     @Builder
     public Follow(User follower, User following) {

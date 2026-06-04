@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -41,4 +42,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<UserEmailProjection> findEmailsByIdIn(List<Long> ids);
 
     void deleteByIdIn(List<Long> ids);
+
+    User findByPublicId(UUID publicId);
 }
