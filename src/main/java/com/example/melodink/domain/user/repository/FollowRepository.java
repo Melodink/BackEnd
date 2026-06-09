@@ -27,11 +27,11 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     """)
     List<FollowUserResponse> findFollowingId(UUID followingId);
 
-    long countFollowers(Long followerId);
+    Long countByFollowerId(Long followerId);
 
-    long countFollowing(Long followingId);
+    Long countByFollowingId(Long followingId);
 
-    boolean existsByFollowerAndFollowing(User follower, User following);
+    Boolean existsByFollowerAndFollowing(User follower, User following);
 
     void deleteByFollowerIdAndPublicId(Long followerId, UUID followingId);
 }
