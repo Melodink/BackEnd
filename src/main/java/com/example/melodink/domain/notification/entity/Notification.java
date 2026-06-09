@@ -10,11 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-/**
- * Notification은 유저 개인용 데이터로 외부 공개 URL 불필요
- * bigserial PK만 사용
- */
 @Entity
 @Table(
         name = "notifications",
@@ -45,8 +42,8 @@ public class Notification {
     @Column(nullable = false, length = 200)
     private String message;
 
-    @Column(name = "target_url")
-    private String targetUrl;
+    @Column(name = "target_public_id")
+    private UUID targetPublicId;
 
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
@@ -56,18 +53,13 @@ public class Notification {
     private LocalDateTime createdAt;
 
     @Builder
-    public Notification(User user, NotificationType type, String message, String targetUrl) {
+    public Notification(User user, NotificationType type, String message, UUID targetPublicId) {
         this.user = user;
         this.type = type;
         this.message = message;
-        this.targetUrl = targetUrl;
+        this.targetPublicId = targetPublicId;
         this.isRead = false;
     }
 
     public void markAsRead() { this.isRead = true; }
-
-    public enum NotificationType {
-        FOLLOW, JOB_APPLY, APPLY_RESULT,
-        POST_COMMENT, COMMENT_REPLY, POST_LIKE, WORK_LIKE
-    }
 }

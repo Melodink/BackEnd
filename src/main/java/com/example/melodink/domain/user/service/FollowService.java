@@ -1,5 +1,6 @@
 package com.example.melodink.domain.user.service;
 
+import com.example.melodink.domain.notification.event.FollowCreatedEvent;
 import com.example.melodink.domain.user.dto.response.FollowUserResponse;
 import com.example.melodink.domain.user.entity.Follow;
 import com.example.melodink.domain.user.entity.User;
@@ -8,6 +9,7 @@ import com.example.melodink.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +20,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class FollowService {
+
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void follow(Long followerId, UUID followingId) {
 
@@ -42,6 +46,12 @@ public class FollowService {
                         .following(following)
                         .build()
         );
+
+        eventPublisher.publishEvent(
+                new FollowCreatedEvent(
+                        follower.getPublicId(), following.getPublicId()
+                )
+        );
     }
 
     public void unfollow(Long followerId, UUID followingPublicId) {
@@ -52,14 +62,14 @@ public class FollowService {
     public Long getFollowerCount(UUID userPublicId) {
         User user = userRepository.findByPublicId(userPublicId);
 
-        long followerCount = followRepository.countFollowers(user.getId());
+        long followerCount = followRepository.countByFollowerId(user.getId());
 
         return followerCount;
     }
 
     public Long getFollowingCount(UUID userPublicId) {
         User user = userRepository.findByPublicId(userPublicId);
-        long followingCount = followRepository.countFollowing(user.getId());
+        long followingCount = followRepository.countByFollowingId(user.getId());
         return followingCount;
     }
 
