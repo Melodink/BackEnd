@@ -21,28 +21,47 @@ public enum ErrorCode {
     USER_ALREADY_REGISTERED(HttpStatus.BAD_REQUEST, "이미 가입된 회원입니다."),
     USER_INVALID_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 유저의 접근입니다."),
 
-    // ITEM
-    ITEM_ID_IS_INVALID(HttpStatus.BAD_REQUEST, "잘못된 상품 입니다."),
+    // COMMUNITY - POST
+    POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시글입니다."),
+    POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 게시글에 접근할 권한이 없습니다."),
+    POST_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 게시글입니다."),
+    POST_CONTENT_EMPTY(HttpStatus.BAD_REQUEST, "게시글 내용을 입력해주세요."),
+    POST_TITLE_EMPTY(HttpStatus.BAD_REQUEST, "게시글 제목을 입력해주세요."),
+    POST_TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "게시글 제목이 너무 깁니다."),
+    POST_CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "게시글 내용이 너무 깁니다."),
 
-    // RECIPE
-    TITLE_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "레시피 제목이 너무 깁니다."),
-    DESCRIPTION_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "레시피 설명이 너무 깁니다."),
-    COOKING_TIME_TOO_SHORT(HttpStatus.BAD_REQUEST, "조리 시간은 1분 이상이어야 합니다."),
-    RECIPE_ID_IS_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 recipeId 입니다."),
+    // COMMUNITY - COMMENT
+    COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 댓글입니다."),
+    COMMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 댓글에 접근할 권한이 없습니다."),
+    COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
+    COMMENT_CONTENT_EMPTY(HttpStatus.BAD_REQUEST, "댓글 내용을 입력해주세요."),
+    COMMENT_CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "댓글 내용이 너무 깁니다."),
 
-    // RECIPE BOOKMARK
-    BOOKMARK_ALREADY_EXITS(HttpStatus.BAD_REQUEST, "이미 북마크된 레시피 입니다."),
-    BOOKMARK_NOT_FOUND(HttpStatus.BAD_REQUEST, "북마크를 찾을 수 없습니다"),
-    BOOKMARK_ALREADY_DEACTIVATED(HttpStatus.BAD_REQUEST, "이미 북마크가 비활성화 상태입니다."),
+    // COMMUNITY - REPLY (대댓글)
+    REPLY_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 답글입니다."),
+    REPLY_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 답글에 접근할 권한이 없습니다."),
+    REPLY_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 답글입니다."),
+    REPLY_CONTENT_EMPTY(HttpStatus.BAD_REQUEST, "답글 내용을 입력해주세요."),
+    REPLY_CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "답글 내용이 너무 깁니다."),
 
-    // REPORT
-    DUPLICATE_REPORT(HttpStatus.BAD_REQUEST, "이미 신고한 게시글 입니다."),
+    // COMMUNITY - LIKE
+    LIKE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 게시글입니다."),
+    LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "좋아요 정보가 존재하지 않습니다."),
+
+    // COMMUNITY - BOOKMARK (추후 추가 시)
+    BOOKMARK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 저장한 게시글입니다."),
+    BOOKMARK_NOT_FOUND(HttpStatus.BAD_REQUEST, "저장한 게시글이 아닙니다."),
 
     // FOLLOW
     SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다."),
+    FOLLOW_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 팔로우한 사용자입니다."),
+    FOLLOW_NOT_FOUND(HttpStatus.BAD_REQUEST, "팔로우 관계가 존재하지 않습니다."),
+
 
     // NOTIFICATION
     NOTIFICATION_ID_IS_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 알림id 입니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 알림입니다."),
+    NOTIFICATION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 알림에 접근할 권한이 없습니다."),
 
     // REPLY
     REPLY_ID_IS_INVALID(HttpStatus.BAD_REQUEST, "잘못된 replyId 입니다."),
@@ -64,15 +83,6 @@ public enum ErrorCode {
     NICKNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
     INTRODUCTION_TOO_LONG(HttpStatus.BAD_REQUEST, "소개는 20자 내로 작성해주세요."),
     NICKNAME_CHANGE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "닉네임 변경 불가기간(6개월)이 지나지 않았습니다."),
-
-    // restaurant
-    ACCESS_REJECT(HttpStatus.FORBIDDEN, "해당 작업에 접근 할 수 없습니다."),
-    NOT_LOGIN_STATUS(HttpStatus.FORBIDDEN, "로그인 후 사용 가능합니다."),
-    RESTAURANT_NOT_FOUND(HttpStatus.BAD_REQUEST, "요청한 식당이 존재하지 않거나 찾을 수 없습니다."),
-    RESTAURANT_LIST_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 리스트를 찾을 수 없습니다."),
-    RESTAURANT_LIST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "요청한 리스트에 대해 접근 할 수 없습니다."),
-    THIS_RESTAURANT_PRIVATE(HttpStatus.BAD_REQUEST, "해당 식당정보는 비공개입니다."),
-
 
     // 5xx
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 에러");
