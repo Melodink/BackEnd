@@ -15,7 +15,7 @@ public record NotificationResponse(
         UUID targetPublicId,
         LocalDateTime createdAt
 ) {
-    public NotificationResponse from(Notification notification) {
+    public static NotificationResponse from(Notification notification) {
         return new NotificationResponse(
             notification.getId(),
             notification.getUser(),

@@ -8,6 +8,8 @@ import com.example.melodink.domain.community.entity.Post;
 import com.example.melodink.domain.community.exception.NotFoundPostException;
 import com.example.melodink.domain.community.repository.CommentRepository;
 import com.example.melodink.domain.community.repository.PostRepository;
+import com.example.melodink.domain.notification.event.CommentReplyEvent;
+import com.example.melodink.domain.notification.event.PostCommentEvent;
 import com.example.melodink.domain.user.entity.User;
 import com.example.melodink.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -61,18 +63,18 @@ public class CommentService {
         if (parent == null) {
             // 게시글 작성자에게 댓글 알림
             eventPublisher.publishEvent(new PostCommentEvent(
-                    post.getUser().getId(),     // 게시글 작성자 (수신)
-                    userId,                     // 댓글 작성자 (발신)
-                    commenter.getNickname(),
-                    post.getId()
+                    post.getPublicId(),     // 게시글 작성자 (수신)
+                    post.getUser().getPublicId(),                     // 댓글 작성자 (발신)
+                    commenter.getPublicId(),
+                    commenter.getNickname()
             ));
         } else {
             // 원댓글 작성자에게 대댓글 알림
             eventPublisher.publishEvent(new CommentReplyEvent(
-                    parent.getUser().getId(),   // 원댓글 작성자 (수신)
-                    userId,                     // 대댓글 작성자 (발신)
-                    commenter.getNickname(),
-                    post.getId()
+                    post.getPublicId(),   // 원댓글 작성자 (수신)
+                    parent.getUser().getPublicId(),                     // 대댓글 작성자 (발신)
+                    commenter.getPublicId(),
+                    commenter.getNickname()
             ));
         }
 
