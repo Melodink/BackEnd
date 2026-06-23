@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.HexFormat;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class RedisRefreshTokenStore implements RefreshTokenStore {
     /** email 기반 사용자별 키세트 및 개별 토큰 키  */
     private String tokenKey(String tokenHash) { return "rt:token:" + tokenHash; }
 
-    private String userSet(String email)       { return "rt:user:" + email; }
+    private String userSet(UUID publicId)       { return "rt:user:" + publicId.toString(); }
 
     private String hash(String token) {
         try {
@@ -32,12 +33,12 @@ public class RedisRefreshTokenStore implements RefreshTokenStore {
         }
     }
 
-    public void save(String email, String refreshToken, Duration ttl) {
+    public void save(UUID publicId, String refreshToken, Duration ttl) {
         String h = hash(refreshToken);
         ValueOperations<String, String> ops = redis.opsForValue();
-        ops.set(tokenKey(h), email, ttl);
-        redis.opsForSet().add(userSet(email), h);
-        // user set은 별도 TTL 없이 관리(원하면 사용자 활동마다 주기적 청소 가능)
+        ops.set(tokenKey(h), publicId.toString(), ttl);
+        redis.opsForSet().add(userSet(publicId), h);
+        redis.expire(userSet(publicId), ttl.plusDays(1));
     }
 
     public boolean exists(String refreshToken) {
@@ -47,16 +48,16 @@ public class RedisRefreshTokenStore implements RefreshTokenStore {
 
     public void revoke(String refreshToken) {
         String h = hash(refreshToken);
-        String email = redis.opsForValue().get(tokenKey(h));
+        String publicId = redis.opsForValue().get(tokenKey(h));
         redis.delete(tokenKey(h));
-        if (email != null) redis.opsForSet().remove(userSet(email), h);
+        if (publicId != null) redis.opsForSet().remove(userSet(UUID.fromString(publicId)), h);
     }
 
-    public void revokeAllByUser(String email) {
-        String setKey = userSet(email);
-        Set<String> members = redis.opsForSet().members(setKey);
-        if (members != null) {
-            for (String h : members) redis.delete(tokenKey(h));
+    public void revokeAllByUser(UUID publicId) {
+        String setKey = userSet(publicId);
+        Set<String> users = redis.opsForSet().members(setKey);
+        if (users != null) {
+            for (String h : users) redis.delete(tokenKey(h));
         }
         redis.delete(setKey);
     }

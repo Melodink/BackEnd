@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -75,29 +76,30 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 유저 정보
 
         CustomUserDetails cud = (CustomUserDetails) authentication.getPrincipal();
-        User m = cud.getUser();
+        User u = cud.getUser();
 
-        if (m.getStatus() != AccountStatus.ACTIVE) {
+        if (u.getStatus() != AccountStatus.ACTIVE) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return; // 안전장치
         }
 
-        String username = m.getEmail();
-        long v = m.getTokenVersion();
+        String username = u.getEmail();
+        long v = u.getTokenVersion();
 
 
         //  토큰에 저장할 role은 접두사 제거해서 "ADMIN"/"USER" 형태로 표준화
         // ex) "ROLE_USER" -> "USER" 로 변환해서 토큰에 담기
         String roleFromAuth = authentication.getAuthorities().iterator().next().getAuthority();
         String roleForToken = roleFromAuth.replaceFirst("^ROLE_", "");
+        UUID publicId = u.getPublicId();
 
         //토큰 생성
-        String access = jwtUtil.createToken("access", username, roleForToken, m.getId(), v,3600000L);
-        String refresh = jwtUtil.createToken("refresh", username, roleForToken, m.getId(), v, 86400000L);
+        String access = jwtUtil.createToken("access", roleForToken, publicId, v,3600000L);
+        String refresh = jwtUtil.createToken("refresh", roleForToken, publicId, v, 86400000L);
 
         // 기존 사용자 Refresh 모두 제거(단말 구분 없다면 권장) 후 저장
-        refreshTokenStore.revokeAllByUser(username);
-        refreshTokenStore.save(username, refresh, Duration.ofDays(1));
+        refreshTokenStore.revokeAllByUser(publicId);
+        refreshTokenStore.save(publicId, refresh, Duration.ofDays(1));
 
         // dual service가 db에 직접 저장함
         //응답 설정
@@ -143,7 +145,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         } else if (failed instanceof BadCredentialsException) {
             code = "BAD_CREDENTIALS"; status = 401;
         }
-
 
         log.warn("Login failed: {}", failed.getMessage());
         log.warn("Login failed: {}", failed.getClass());

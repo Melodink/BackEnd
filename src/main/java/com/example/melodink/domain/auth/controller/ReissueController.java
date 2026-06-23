@@ -1,9 +1,6 @@
 package com.example.melodink.domain.auth.controller;
 
-import com.example.melodink.domain.auth.service.RefreshTokenStore;
-import com.example.melodink.global.security.jwt.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.servlet.http.Cookie;
+import com.example.melodink.domain.auth.service.ReissueService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,86 +10,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.Duration;
-
 @Controller
 @ResponseBody
 @RequiredArgsConstructor
 public class ReissueController {
 
-    private final JwtUtil jwtUtil;
-    private final RefreshTokenStore refreshTokenStore;
-
+    private final ReissueService reissueService;
 
     @PostMapping("/api/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
-        //get refresh token
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh")) {
-                    refresh = cookie.getValue();
-                }
-            }
-        }
-
-        if (refresh == null) {
-            //response status code
-            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
-        }
-
-        //expired check
-        try {
-            jwtUtil.isTokenExpired(refresh);
-        } catch (ExpiredJwtException e) {
-            //response status code
-            return new ResponseEntity<>("refresh token expired", HttpStatus.UNAUTHORIZED);
-        }
-
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
-
-        if (!category.equals("refresh")) {
-            //response status code
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
-        }
-
-        // 저장소에 존재하는지 검사 (Redis 우선, DB 보강)
-        if (!refreshTokenStore.exists(refresh)) {
-            // response body
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.UNAUTHORIZED);
-        }
-
-        String username = jwtUtil.getUsername(refresh);
-        String role = jwtUtil.getRole(refresh);
-        Long memberId = jwtUtil.getUserId(refresh);
-        Long tokenVersion = jwtUtil.getTokenVersion(refresh);
-
-        //make new JWT
-        String newAccess = jwtUtil.createToken("access", username, role, memberId, tokenVersion, 1000*60*10L);
-        String newRefresh = jwtUtil.createToken("refresh", username, role, memberId, tokenVersion, 1000*60*60*24L);
-
-
-        // 회전: 기존 Refresh 제거 + 신규 저장
-        refreshTokenStore.revoke(refresh);
-        refreshTokenStore.save(username, newRefresh, Duration.ofDays(1));
-
-        //response
-        response.setHeader("Authorization", "Bearer " + newAccess);
-        response.addCookie(createCookie("refresh", newRefresh));
+        reissueService.reissue(request, response);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60); // 24시간
-        cookie.setHttpOnly(true);
-        cookie.setPath("/"); // 전역 경로 설정
-        cookie.setSecure(false); // HTTPS에서만 전송
-        return cookie;
-    }
 }

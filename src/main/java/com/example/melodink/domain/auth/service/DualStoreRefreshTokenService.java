@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @Primary
@@ -17,11 +18,11 @@ public class DualStoreRefreshTokenService implements RefreshTokenStore{
 
     @Override
     @Transactional
-    public void save(String email, String refreshToken, Duration ttl) {
+    public void save(UUID publicId, String refreshToken, Duration ttl) {
         // 1) DB 기록(권위)
-        jpa.save(email, refreshToken, ttl);
+        jpa.save(publicId, refreshToken, ttl);
         // 2) Redis 기록(즉각 차단용)
-        redis.save(email, refreshToken, ttl);
+        redis.save(publicId, refreshToken, ttl);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class DualStoreRefreshTokenService implements RefreshTokenStore{
                 Instant exp = Instant.parse(rt.getExpiryDate());
                 Duration remain = Duration.between(now, exp);
                 if (!remain.isNegative()) {
-                    redis.save(rt.getEmail(), refreshToken, remain);
+                    redis.save(rt.getPublicId(), refreshToken, remain);
                 }
             });
         }
@@ -51,8 +52,8 @@ public class DualStoreRefreshTokenService implements RefreshTokenStore{
 
     @Override
     @Transactional
-    public void revokeAllByUser(String email) {
-        redis.revokeAllByUser(email);
-        jpa.revokeAllByUser(email);
+    public void revokeAllByUser(UUID publicId) {
+        redis.revokeAllByUser(publicId);
+        jpa.revokeAllByUser(publicId);
     }
 }

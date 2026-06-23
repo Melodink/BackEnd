@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface RefreshTokenJpaRepository extends JpaRepository<RefreshToken, Long> {
     // 해시 기반으로 변경
@@ -14,5 +15,5 @@ public interface RefreshTokenJpaRepository extends JpaRepository<RefreshToken, L
     @Transactional
     void deleteByTokenHash(String tokenHash);
     @Transactional
-    void deleteAllByEmail(String email);
+    void deleteByPublicId(UUID publicId);
 }

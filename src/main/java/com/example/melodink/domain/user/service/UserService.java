@@ -7,7 +7,7 @@ import com.example.melodink.domain.user.dto.response.ShowInfoResponse;
 import com.example.melodink.domain.user.entity.AccountStatus;
 import com.example.melodink.domain.user.entity.ProviderType;
 import com.example.melodink.domain.user.entity.User;
-import com.example.melodink.domain.user.repository.UserEmailProjection;
+import com.example.melodink.domain.user.repository.UserPublicIdProjection;
 import com.example.melodink.domain.user.repository.UserRepository;
 import com.example.melodink.global.s3.S3FileType;
 import com.example.melodink.global.s3.S3Service;
@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,7 +75,7 @@ public class UserService {
            u.setDeletedAt(LocalDateTime.now());
            u.setRetentionUntil(LocalDateTime.now().plus(retention));
            u.setTokenVersion(u.getTokenVersion() + 1);
-           refreshTokenStore.revokeAllByUser(u.getEmail());
+           refreshTokenStore.revokeAllByUser(u.getPublicId());
         } else {
             throw new AccessDeniedException("Invalid user");
         }
@@ -91,7 +90,7 @@ public class UserService {
             u.setDeletedAt(LocalDateTime.now());
             u.setRetentionUntil(LocalDateTime.now().plus(retention));
             u.setTokenVersion(u.getTokenVersion() + 1);
-            refreshTokenStore.revokeAllByUser(u.getEmail());
+            refreshTokenStore.revokeAllByUser(u.getPublicId());
         } else {
             throw new AccessDeniedException("Invalid user");
         }
@@ -114,7 +113,7 @@ public class UserService {
         u.setDeletedAt(null);
         u.setRetentionUntil(null);
         u.setTokenVersion(u.getTokenVersion() + 1);
-        refreshTokenStore.revokeAllByUser(u.getEmail());
+        refreshTokenStore.revokeAllByUser(u.getPublicId());
     }
 
     @Transactional
@@ -130,7 +129,7 @@ public class UserService {
         u.setTokenVersion(u.getTokenVersion() + 1); // 새 버전으로 재발급 유도
 
         // 방어적으로 기존 refresh 전부 제거 (깨끗한 상태로 시작)
-        refreshTokenStore.revokeAllByUser(u.getEmail());
+        refreshTokenStore.revokeAllByUser(u.getPublicId());
     }
 
     @Transactional
@@ -225,10 +224,10 @@ public class UserService {
 //        paymentOrderRepository.reassignMemberToDeleted(ids, deletedUser);
 
         // 3) refresh 전부 제거
-        List<UserEmailProjection> emails = userRepository.findEmailsByIdIn(ids);
-        for (UserEmailProjection u : emails) {
+        List<UserPublicIdProjection> publicIds = userRepository.findPublicIdsByIdIn(ids);
+        for (UserPublicIdProjection p : publicIds) {
             // (a) 기존 DB/외부 저장소에 있는 refresh 토큰 정리
-            refreshTokenStore.revokeAllByUser(u.getEmail());
+            refreshTokenStore.revokeAllByUser(p.getPublicId());
         }
 
         // 4) 마지막으로 회원 삭제
