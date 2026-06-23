@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -39,13 +40,15 @@ public class JwtUtil {
 
     public Boolean isTokenExpired(String token) { return parseClaims(token).getExpiration().before(new Date()); }
 
-    public String getUsername(String token) { return parseClaims(token).get("username", String.class); }
+//    public String getUsername(String token) { return parseClaims(token).get("username", String.class); }
 
     public String getRole(String token) { return parseClaims(token).get("role", String.class); }
 
     public String getCategory(String token) { return parseClaims(token).get("category", String.class); }
 
-    public Long getUserId(String token) { return parseClaims(token).get("userId", Long.class); }
+//    public Long getUserId(String token) { return parseClaims(token).get("userId", Long.class); }
+
+    public UUID getPublicId(String token) { return parseClaims(token).get("publicId", UUID.class); }
 
     public long getTokenVersion(String token) {
         Object claims = parseClaims(token).get("tokenVersion");
@@ -56,18 +59,15 @@ public class JwtUtil {
         }catch (Exception e) { return 0; }
     }
 
-    public String createToken(String category, String username, String role, Long userId, Long tokenVersion, Long expirationTime) {
+    public String createToken(String category, String role, UUID publicId ,Long tokenVersion, Long expirationTime) {
         return Jwts.builder()
                 .claim("category", category)
-                .claim("username", username)
                 .claim("role", role)
-                .claim("userId", userId)
+                .claim("publicId", publicId)
                 .claim("tokenVersion", tokenVersion)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey)
                 .compact();
     }
-
-
 }

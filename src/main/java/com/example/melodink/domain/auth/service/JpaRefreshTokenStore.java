@@ -14,6 +14,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HexFormat;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +22,11 @@ public class JpaRefreshTokenStore {
     private final RefreshTokenJpaRepository repo;
     private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.UTC);
 
-    public void save(String email, String refreshToken, Duration ttl) {
+    public void save(UUID publicId, String refreshToken, Duration ttl) {
         String hash = hash(refreshToken);
         Instant exp = Instant.now().plus(ttl);
         RefreshToken rt = new RefreshToken();
-        rt.setEmail(email);
+        rt.setPublicId(publicId);
         rt.setTokenHash(hash);
         rt.setExpiryDate(ISO.format(exp));
         repo.save(rt);
@@ -45,8 +46,8 @@ public class JpaRefreshTokenStore {
     }
 
     @Transactional
-    public void revokeAllByUser(String email) {
-        repo.deleteAllByEmail(email);
+    public void revokeAllByUser(UUID publicId) {
+        repo.deleteByPublicId(publicId);
     }
 
     private static String hash(String token) {

@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -65,16 +66,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String role = user.getRole().name(); // 예: USER → ROLE_USER
         long v = user.getTokenVersion();
-        long memberId = user.getId();
+        UUID publicId = user.getPublicId();
 
         // 3) JWT 생성
-        String access  = jwtUtil.createToken("access",  user.getEmail(), role, memberId, v, 10 * 60 * 1000L);      // 10분
-        String refresh = jwtUtil.createToken("refresh", user.getEmail(), role, memberId, v, 24 * 60 * 60 * 1000L); // 24시간
+        String access  = jwtUtil.createToken("access", role, publicId, v, 10 * 60 * 1000L);      // 10분
+        String refresh = jwtUtil.createToken("refresh", role, publicId, v, 24 * 60 * 60 * 1000L); // 24시간
 
 
         // 기존 사용자 토큰 일괄 삭제 후 저장(회전/일원화)
-        refreshTokenService.revokeAllByUser(user.getEmail());
-        refreshTokenService.save(user.getEmail(), refresh, Duration.ofDays(1));
+        refreshTokenService.revokeAllByUser(publicId);
+        refreshTokenService.save(publicId, refresh, Duration.ofDays(1));
 
         // 응답 구성
         response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + access);

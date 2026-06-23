@@ -9,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ReissueService {
+
     private final JwtUtil jwtUtil;
     private final RefreshTokenStore refreshTokenStore;
 
@@ -26,10 +28,9 @@ public class ReissueService {
 
         validateRefreshToken(refresh);
 
-        String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
-        Long userId = jwtUtil.getUserId(refresh);
         Long tokenVersion = jwtUtil.getTokenVersion(refresh);
+        UUID publicId = jwtUtil.getPublicId(refresh);
 
         if (!refreshTokenStore.exists(refresh)) {
             throw new RuntimeException("REFRESH_TOKEN_REUSE_DETECTED");
@@ -37,25 +38,23 @@ public class ReissueService {
 
         String newAccess = jwtUtil.createToken(
                 "access",
-                username,
                 role,
-                userId,
+                publicId,
                 tokenVersion,
                 1000 * 60 * 10L
         );
 
         String newRefresh = jwtUtil.createToken(
                 "refresh",
-                username,
                 role,
-                userId,
+                publicId,
                 tokenVersion,
                 1000 * 60 * 60 * 24L
         );
 
         // rotation
         refreshTokenStore.revoke(refresh);
-        refreshTokenStore.save(username, newRefresh, Duration.ofDays(1));
+        refreshTokenStore.save(publicId, newRefresh, Duration.ofDays(1));
 
         // 응답 세팅
         response.setHeader("Authorization", "Bearer " + newAccess);

@@ -1,6 +1,5 @@
 package com.example.melodink.domain.user.repository;
 
-import aj.org.objectweb.asm.commons.Remapper;
 import com.example.melodink.domain.user.entity.ProviderType;
 import com.example.melodink.domain.user.entity.User;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +38,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """)
     List<Long> findIdsToHardDelete(@Param("now") LocalDateTime now, Pageable pageable);
 
-    List<UserEmailProjection> findEmailsByIdIn(List<Long> ids);
+    List<UserPublicIdProjection> findPublicIdsByIdIn(List<Long> ids);
 
     void deleteByIdIn(List<Long> ids);
 

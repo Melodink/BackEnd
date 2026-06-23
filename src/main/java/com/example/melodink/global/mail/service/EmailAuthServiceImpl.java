@@ -292,7 +292,7 @@ public class EmailAuthServiceImpl implements EmailAuthService {
         u.setPassword(encoded);
         // 토큰 무효화(선택)
         try {
-            refreshTokenService.revokeAllByUser(email);
+            refreshTokenService.revokeAllByUser(u.getPublicId());
         } catch (Exception ignore) {
             log.debug("refresh token revoke skipped: {}", ignore.getMessage());
         }
@@ -309,11 +309,11 @@ public class EmailAuthServiceImpl implements EmailAuthService {
 
     private String subjectFor(EmailTokenPurpose purpose) {
         return switch (purpose) {
-            case SIGNUP -> "[COTW] 회원가입 이메일 인증코드";
-            case PASSWORD_RESET -> "[COTW] 비밀번호 재설정 인증코드";
-            case USERNAME_LOOKUP -> "[COTW] 아이디 찾기 인증코드";
-            case ACCOUNT_RECOVER -> "[COTW] 계정 복구 인증코드";
-            default -> "[COTW] 이메일 인증코드";
+            case SIGNUP -> "[Melodink] 회원가입 이메일 인증코드";
+            case PASSWORD_RESET -> "[Melodink] 비밀번호 재설정 인증코드";
+            case USERNAME_LOOKUP -> "[Melodink] 아이디 찾기 인증코드";
+            case ACCOUNT_RECOVER -> "[Melodink] 계정 복구 인증코드";
+            default -> "[Melodink] 이메일 인증코드";
         };
     }
 
