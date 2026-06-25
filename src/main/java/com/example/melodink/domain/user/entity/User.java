@@ -1,6 +1,8 @@
 package com.example.melodink.domain.user.entity;
 
 import com.example.melodink.domain.artist.entity.ArtistProfile;
+import com.example.melodink.domain.community.entity.Comment;
+import com.example.melodink.domain.community.entity.Like;
 import com.example.melodink.domain.community.entity.Post;
 import com.example.melodink.domain.job.entity.JobApplication;
 import com.example.melodink.domain.job.entity.JobPosting;
@@ -86,26 +88,19 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "director")
     private List<JobPosting> jobPostings = new ArrayList<>();
-//
-//    @Builder.Default
-//    @OneToMany(mappedBy = "member")
-//    private List<Comment> comments = new ArrayList<>();
-//
-//    @Builder.Default
-//    @OneToMany(mappedBy = "member")
-//    private List<CommentLike> commentLikes = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<Like> commentLikes = new ArrayList<>();
 //
 //    @Builder.Default
 //    @OneToMany(mappedBy = "member")
 //    private List<CommentReport> commentReports = new ArrayList<>();
-//
-//    @Builder.Default
-//    @OneToMany(mappedBy = "member")
-//    private List<PaymentOrder> paymentOrders = new ArrayList<>();
-//
-//    @Builder.Default
-//    @OneToMany(mappedBy = "member")
-//    private List<Participant> participant = new ArrayList<>();
+
 
     // == 팩토리 ==
     public static User ofLocal(String name, String email, String passwordHash) {
