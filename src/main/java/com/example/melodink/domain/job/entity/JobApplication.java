@@ -47,7 +47,7 @@ public class JobApplication {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private ApplicationStatus status;
+    private JobStatus status;
 
     @CreatedDate
     @Column(name = "applied_at", nullable = false, updatable = false)
@@ -58,14 +58,11 @@ public class JobApplication {
         this.jobPosting = jobPosting;
         this.artist = artist;
         this.coverLetter = coverLetter;
-        this.status = ApplicationStatus.PENDING;
+        this.status = JobStatus.PENDING;
     }
 
-    public void review() { this.status = ApplicationStatus.REVIEWED; }
-    public void accept() { this.status = ApplicationStatus.ACCEPTED; }
-    public void reject() { this.status = ApplicationStatus.REJECTED; }
+    public void review() { this.status = JobStatus.REVIEWED; }
+    public void accept() { this.status = JobStatus.ACCEPTED; }
+    public void reject() { this.status = JobStatus.REJECTED; }
 
-    public enum ApplicationStatus {
-        PENDING, REVIEWED, ACCEPTED, REJECTED
-    }
 }
